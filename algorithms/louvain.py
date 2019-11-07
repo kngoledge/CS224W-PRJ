@@ -32,6 +32,31 @@ def main():
     edges = np.asarray(edges).astype(int)
     social_network = data2dag(edges, nodes.shape[0])
 
+  # Check for self edges
+  for e in social_network.Edges():
+    if e.GetSrcNId() == e.GetDstNId():
+      print("Self Loop Found:",e.GetSrcNId())
+
+  # Louvain Algorithm from snap.py
+  CmtyV = snap.TCnComV()
+  undirected = snap.ConvertGraph(snap.PUNGraph, social_network)
+  snap.DelSelfEdges(undirected)
+  modularity = snap.CommunityCNM(undirected, CmtyV)
+  #for Cmty in CmtyV:
+  #  print("Community Size:",len(Cmty))
+  print("Results from Clauset-Newman-Moore:")
+  print("Modularity:",modularity)
+  print("Number of clusters:",len(CmtyV))
+
+  '''
+  This algorithm is not working!
+  CmtyV = snap.TCnComV()
+  modularity = snap.CommunityGirvanNewman(undirected, CmtyV)
+  #for Cmty in CmtyV:
+  #  print("Community Size:",len(Cmty))
+  print("Modularity using Girvan-Newman algorithm is %f" % modularity)
+  '''
+
 
 if __name__ == '__main__':
     main()
