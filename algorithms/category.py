@@ -57,6 +57,7 @@ def main():
       edge_weights[(dst,src)] = edge_weights.get((dst,src),0) + 1
 
   # Color Scheme
+  # Colors based on: https://www.graphviz.org/doc/info/colors.html
   bucket_bounds = [500, 750, 1000, 2000, 5000]
   colors = ['lightskyblue','lightslateblue','blue','darkviolet','midnightblue']
 
