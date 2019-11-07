@@ -2,6 +2,7 @@ import snap
 import pandas as pd
 import numpy as np
 from os import path
+import matplotlib.pyplot as plt
 
 def data2dag(data, num_nodes):
   dag = snap.TNGraph.New()
@@ -42,11 +43,55 @@ def main():
   undirected = snap.ConvertGraph(snap.PUNGraph, social_network)
   snap.DelSelfEdges(undirected)
   modularity = snap.CommunityCNM(undirected, CmtyV)
-  #for Cmty in CmtyV:
-  #  print("Community Size:",len(Cmty))
+  node_to_cmty = np.zeros(nodes.shape[0])
+  cmty_sizes = np.zeros(len(CmtyV))
+  for i in range(len(CmtyV)):
+    for node in CmtyV[i]:
+      node_to_cmty[node] = i
+    cmty_sizes[i] = len(CmtyV[i])
   print("Results from Clauset-Newman-Moore:")
   print("Modularity:",modularity)
   print("Number of clusters:",len(CmtyV))
+
+  # Fun category stuff to do
+  upload_col = headers.index('category')
+  categories = set()
+  for i in range(nodes.shape[0]):
+    categories.add(nodes[i][upload_col])
+  idx_to_categories = list(categories)
+  print("Number of categories:",len(idx_to_categories))
+  categories_to_idx = dict()
+  for i in range(len(idx_to_categories)):
+    categories_to_idx[idx_to_categories[i]] = i
+
+  # Communities and categories
+  cmty_category_count = np.zeros((len(CmtyV),len(idx_to_categories)))
+  for i in range(nodes.shape[0]):
+    cmty_category_count[int(node_to_cmty[i]),categories_to_idx[nodes[i][upload_col]]] += 1
+  cmty_category_count = cmty_category_count/cmty_sizes[:,np.newaxis]
+
+
+  # Create graphs per category
+  '''
+  plt.figure()
+  for i in range(len(idx_to_categories)):
+    if (str(idx_to_categories[i]) != "nan") and (idx_to_categories[i] != " UNA "):
+      plt.plot(sorted(cmty_category_count[:,i], reverse=True), label=idx_to_categories[i])
+  plt.title("Category Proportions in Clusters")
+  plt.xlabel("Cluster")
+  plt.ylabel("Proportion")
+  plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
+  plt.savefig("../figures/category_proportions_clusters.png", bbox_inches="tight")
+  '''
+  '''
+  for i in range(cmty_category_count.shape[0]):
+    top_category = np.argmax(cmty_category_count[i])
+    print("Community "+str(i)+": "+str(idx_to_categories[top_category])+",",cmty_category_count[i][top_category])
+  '''
+
+
+
+
 
   '''
   This algorithm is not working!

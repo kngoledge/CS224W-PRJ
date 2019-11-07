@@ -36,7 +36,7 @@ def main():
     edges = np.asarray(edges).astype(int)
     social_network = data2dag(edges, nodes.shape[0])
 
-  # Find number of unique uploaders
+  # Find number of unique categories
   upload_col = headers.index('category')
   categories = set()
   for i in range(nodes.shape[0]):
