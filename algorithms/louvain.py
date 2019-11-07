@@ -2,7 +2,10 @@ import snap
 import pandas as pd
 import numpy as np
 from os import path
+import networkx as nx
+import community
 import matplotlib.pyplot as plt
+import timeit
 
 def data2dag(data, num_nodes):
   dag = snap.TNGraph.New()
@@ -25,81 +28,58 @@ def main():
   nodes = np.asarray(nodes)
 
   # Load social network accordingly
+  edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
+  edges = np.asarray(edges).astype(int)
+  G = nx.Graph()
+  G.add_nodes_from(range(nodes.shape[0]))
+  G.add_edges_from(list(map(tuple, edges)))
+
+  #first compute the best partition
+  print("Computing Louvain Algorithm")
+  start = timeit.default_timer()
+  partition = community.best_partition(G)
+  stop = timeit.default_timer()
+
+  # Computing modularity
+  num_cmtys = len(set(partition.values()))
+  num_edges = edges.shape[0]
+  cmtys = [[] for _ in range(num_cmtys)]
+  for node in partition.keys():
+    cmtys[partition[node]].append(node)
+
+  # Load social network accordingly
   if path.exists("../data/youtube.graph"):
     FIn = snap.TFIn("../data/youtube.graph")
     social_network = snap.TNGraph.Load(FIn)
   else:
-    edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
-    edges = np.asarray(edges).astype(int)
     social_network = data2dag(edges, nodes.shape[0])
 
-  # Check for self edges
-  for e in social_network.Edges():
-    if e.GetSrcNId() == e.GetDstNId():
-      print("Self Loop Found:",e.GetSrcNId())
-
-  # Louvain Algorithm from snap.py
-  CmtyV = snap.TCnComV()
-  undirected = snap.ConvertGraph(snap.PUNGraph, social_network)
-  snap.DelSelfEdges(undirected)
-  modularity = snap.CommunityCNM(undirected, CmtyV)
-  node_to_cmty = np.zeros(nodes.shape[0])
-  cmty_sizes = np.zeros(len(CmtyV))
-  for i in range(len(CmtyV)):
-    for node in CmtyV[i]:
-      node_to_cmty[node] = i
-    cmty_sizes[i] = len(CmtyV[i])
-  print("Results from Clauset-Newman-Moore:")
+  modularity = 0
+  for cmty in cmtys:
+    Nodes = snap.TIntV()
+    for elem in cmty:
+      Nodes.Add(int(elem))
+    modularity += snap.GetModularity(social_network, Nodes, num_edges)
+  print("Results from Louvain:")
   print("Modularity:",modularity)
-  print("Number of clusters:",len(CmtyV))
-
-  # Fun category stuff to do
-  upload_col = headers.index('category')
-  categories = set()
-  for i in range(nodes.shape[0]):
-    categories.add(nodes[i][upload_col])
-  idx_to_categories = list(categories)
-  print("Number of categories:",len(idx_to_categories))
-  categories_to_idx = dict()
-  for i in range(len(idx_to_categories)):
-    categories_to_idx[idx_to_categories[i]] = i
-
-  # Communities and categories
-  cmty_category_count = np.zeros((len(CmtyV),len(idx_to_categories)))
-  for i in range(nodes.shape[0]):
-    cmty_category_count[int(node_to_cmty[i]),categories_to_idx[nodes[i][upload_col]]] += 1
-  cmty_category_count = cmty_category_count/cmty_sizes[:,np.newaxis]
+  print("Number of clusters:",num_cmtys)
+  print("Time elapsed:",stop - start)
 
 
-  # Create graphs per category
+  #drawing
   '''
-  plt.figure()
-  for i in range(len(idx_to_categories)):
-    if (str(idx_to_categories[i]) != "nan") and (idx_to_categories[i] != " UNA "):
-      plt.plot(sorted(cmty_category_count[:,i], reverse=True), label=idx_to_categories[i])
-  plt.title("Category Proportions in Clusters")
-  plt.xlabel("Cluster")
-  plt.ylabel("Proportion")
-  plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
-  plt.savefig("../figures/category_proportions_clusters.png", bbox_inches="tight")
-  '''
-  '''
-  for i in range(cmty_category_count.shape[0]):
-    top_category = np.argmax(cmty_category_count[i])
-    print("Community "+str(i)+": "+str(idx_to_categories[top_category])+",",cmty_category_count[i][top_category])
-  '''
+  size = float(len(set(partition.values())))
+  pos = nx.spring_layout(G)
+  count = 0.
+  for com in set(partition.values()) :
+    count = count + 1.
+    list_nodes = [nodes for nodes in partition.keys()
+                                if partition[nodes] == com]
+    nx.draw_networkx_nodes(G, pos, list_nodes, node_size = 20,
+                                node_color = str(count / size))
 
-
-
-
-
-  '''
-  This algorithm is not working!
-  CmtyV = snap.TCnComV()
-  modularity = snap.CommunityGirvanNewman(undirected, CmtyV)
-  #for Cmty in CmtyV:
-  #  print("Community Size:",len(Cmty))
-  print("Modularity using Girvan-Newman algorithm is %f" % modularity)
+  nx.draw_networkx_edges(G, pos, alpha=0.5)
+  plt.show()
   '''
 
 
