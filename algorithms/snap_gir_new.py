@@ -43,12 +43,12 @@ def main():
       print("Self Loop Found:",e.GetSrcNId())
 
   # CNM Algorithm from snap.py
-  print("Computing CNM")
+  print("Computing Girvan Newman")
   start = timeit.default_timer()
   CmtyV = snap.TCnComV()
   undirected = snap.ConvertGraph(snap.PUNGraph, social_network)
-  snap.DelSelfEdges(undirected)
-  the_modularity = snap.CommunityCNM(undirected, CmtyV)
+  #snap.DelSelfEdges(undirected)
+  the_modularity = snap.CommunityGirvanNewman(undirected, CmtyV)
   stop = timeit.default_timer()
   node_to_cmty = np.zeros(nodes.shape[0])
   cmty_sizes = np.zeros(len(CmtyV))
@@ -75,7 +75,7 @@ def main():
 
   print("Calculating Modularity")
   modul = modularity(G, cmtys)
-  print("Results from Clauset-Newman-Moore:")
+  print("Results from Girvan Newman:")
   print("Modularity:",modul)
   print("Number of clusters:",len(CmtyV))
   print("Time elapsed:",stop - start)

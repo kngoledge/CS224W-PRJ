@@ -57,32 +57,26 @@ def main():
       node_to_cmty[node] = i
     cmty_sizes[i] = len(CmtyV[i])
   cmtys = [[node for node in cmty] for cmty in CmtyV]
-  '''
-  m = 0
-  for i in range(len(CmtyV)):
-    Nodes = snap.TIntV()
-    for elem in CmtyV[i]:
-      Nodes.Add(int(elem))
-    m += snap.GetModularity(social_network, Nodes, social_network.GetEdges())
+
   '''
   edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
   edges = np.asarray(edges).astype(int)
   G = nx.Graph()
   G.add_nodes_from(range(nodes.shape[0]))
   G.add_edges_from(list(map(tuple, edges)))
+  '''
 
-  assert(is_partition(G, cmtys))
+  #assert(is_partition(G, cmtys))
 
-  print("Calculating Modularity")
-  modul = modularity(G, cmtys)
+  #print("Calculating Modularity")
+  #modul = modularity(G, cmtys)
   print("Results from Clauset-Newman-Moore:")
-  print("Modularity:",modul)
+  #print("Modularity:",modul)
   print("Number of clusters:",len(CmtyV))
   print("Time elapsed:",stop - start)
 
 
   # Fun category stuff to do
-  '''
   upload_col = headers.index('category')
   categories = set()
   for i in range(nodes.shape[0]):
@@ -98,21 +92,17 @@ def main():
   for i in range(nodes.shape[0]):
     cmty_category_count[int(node_to_cmty[i]),categories_to_idx[nodes[i][upload_col]]] += 1
   cmty_category_count = cmty_category_count/cmty_sizes[:,np.newaxis]
-  '''
 
 
   # Create graphs per category
-  '''
   plt.figure()
-  for i in range(len(idx_to_categories)):
-    if (str(idx_to_categories[i]) != "nan") and (idx_to_categories[i] != " UNA "):
-      plt.plot(sorted(cmty_category_count[:,i], reverse=True), label=idx_to_categories[i])
+  plt.plot(sorted(np.max(cmty_category_count, axis=1), reverse=True), label="Top proportion")
+  plt.plot(0.5*np.ones(cmty_category_count.shape[0]), label="Majority Threshold", linestyle='dashed')
   plt.title("Category Proportions in Clusters")
   plt.xlabel("Cluster")
   plt.ylabel("Proportion")
-  plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
-  plt.savefig("../figures/category_proportions_clusters.png", bbox_inches="tight")
-  '''
+  plt.legend()
+  plt.savefig("../figures/category_top_clusters.png")
   '''
   for i in range(cmty_category_count.shape[0]):
     top_category = np.argmax(cmty_category_count[i])

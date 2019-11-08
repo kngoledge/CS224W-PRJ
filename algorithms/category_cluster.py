@@ -6,6 +6,7 @@ import networkx as nx
 import pylab as plt
 from networkx.drawing.nx_agraph import graphviz_layout, to_agraph
 import pygraphviz as pgv
+from networkx.algorithms.community.quality import modularity
 
 def data2dag(data, num_nodes):
   dag = snap.TNGraph.New()
@@ -28,13 +29,12 @@ def main():
   nodes = np.asarray(nodes)
 
   # Load social network accordingly
-  if path.exists("../data/youtube.graph"):
-    FIn = snap.TFIn("../data/youtube.graph")
-    social_network = snap.TNGraph.Load(FIn)
-  else:
-    edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
-    edges = np.asarray(edges).astype(int)
-    social_network = data2dag(edges, nodes.shape[0])
+  edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
+  edges = np.asarray(edges).astype(int)
+  G = nx.Graph()
+  G.add_nodes_from(range(nodes.shape[0]))
+  G.add_edges_from(list(map(tuple, edges)))
+
 
   # Find number of unique categories
   upload_col = headers.index('category')
@@ -52,20 +52,24 @@ def main():
 
   # category communities
   num_cmtys = len(idx_to_categories)
-  num_edges = social_network.GetEdges()
+  num_edges = edges.shape[0]
   cmtys = [[] for _ in range(num_cmtys)]
   for i in range(len(node_to_category)):
     cmtys[node_to_category[i]].append(i)
 
   # Calculate modularity
+  '''
   modularity = 0
   for cmty in cmtys:
     Nodes = snap.TIntV()
     for elem in cmty:
       Nodes.Add(int(elem))
     modularity += snap.GetModularity(social_network, Nodes, num_edges)
+  '''
+  print("Calculating Modularity")
+  modul = modularity(G, cmtys)
   print("Results from Category Clusters:")
-  print("Modularity:",modularity)
+  print("Modularity:",modul)
   print("Number of clusters:",num_cmtys)
 
 

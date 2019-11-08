@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import timeit
 from networkx.algorithms.community.quality import modularity
 from networkx.algorithms.community.community_utils import is_partition
+from networkx.algorithms.community.centrality import girvan_newman
 
 def data2dag(data, num_nodes):
   dag = snap.TNGraph.New()
@@ -37,12 +38,19 @@ def main():
   G.add_edges_from(list(map(tuple, edges)))
 
   #first compute the best partition
-  print("Computing Louvain Algorithm")
+  print("Computing Girvan Newman Algorithm")
   start = timeit.default_timer()
-  partition = community.best_partition(G)
+  comp = girvan_newman(G)
+  print(tuple(sorted(c) for c in next(comp)))
+  '''
+  max_iterations = 100
+  for i in range(max_iterations):
+    print(gir[i])
+  '''
   stop = timeit.default_timer()
 
   # Computing modularity
+  '''
   num_cmtys = len(set(partition.values()))
   num_edges = edges.shape[0]
   cmtys = [[] for _ in range(num_cmtys)]
@@ -55,6 +63,7 @@ def main():
     social_network = snap.TNGraph.Load(FIn)
   else:
     social_network = data2dag(edges, nodes.shape[0])
+  '''
 
   '''
   modularity = 0
@@ -64,6 +73,7 @@ def main():
       Nodes.Add(int(elem))
     modularity += snap.GetModularity(social_network, Nodes, num_edges)
   '''
+  '''
   print("Calculating Modularity")
   assert(is_partition(G, cmtys))
   modul = modularity(G, cmtys)
@@ -71,6 +81,7 @@ def main():
   print("Modularity:",modul)
   print("Number of clusters:",num_cmtys)
   print("Time elapsed:",stop - start)
+  '''
 
 
   #drawing
