@@ -57,6 +57,9 @@ def main():
   for i in range(len(node_to_category)):
     cmtys[node_to_category[i]].append(i)
 
+  for i in range(len(idx_to_categories)):
+    print("Category",idx_to_categories[i],"has",len(cmtys[i]),"nodes.")
+
   # Calculate modularity
   '''
   modularity = 0
@@ -67,7 +70,7 @@ def main():
     modularity += snap.GetModularity(social_network, Nodes, num_edges)
   '''
   print("Calculating Modularity")
-  modul = modularity(G, cmtys)
+  #modul = modularity(G, cmtys)
   print("Results from Category Clusters:")
   print("Modularity:",modul)
   print("Number of clusters:",num_cmtys)

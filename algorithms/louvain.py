@@ -23,11 +23,18 @@ def data2dag(data, num_nodes):
 def main():
 
   # Load data
-  nodes = pd.read_csv("../data/nodes.csv", sep='\t', index_col=0)
+  if path.exists("../data/cmty_nodes.csv"):
+    node_upload = "../data/cmty_nodes.csv"
+  elif path.exists("../data/nodes.csv"):
+    node_upload = "../data/cmty_nodes.csv"
+  else:
+    print("NO NODES TO UPLOAD!")
+    assert(False)
+  pd_nodes = pd.read_csv(node_upload, sep='\t', index_col=0)
 
   # Data in nice form
-  headers = list(nodes.columns)
-  nodes = np.asarray(nodes)
+  headers = list(pd_nodes.columns)
+  nodes = np.asarray(pd_nodes)
 
   # Load social network accordingly
   edges = pd.read_csv("../data/edges.csv", sep='\t', index_col=0)
@@ -55,6 +62,13 @@ def main():
     social_network = snap.TNGraph.Load(FIn)
   else:
     social_network = data2dag(edges, nodes.shape[0])
+
+  # Add communities to nodes
+  col_name = "louvain_cmty"
+
+  if col_name not in headers:
+    pd_nodes[col_name] = partition
+    pd_nodes.to_csv("../data/cmty_nodes.csv", sep='\t')
 
   '''
   modularity = 0
