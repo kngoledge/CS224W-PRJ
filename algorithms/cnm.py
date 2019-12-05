@@ -57,7 +57,7 @@ def main():
   snap.DelSelfEdges(undirected)
   the_modularity = snap.CommunityCNM(undirected, CmtyV)
   stop = timeit.default_timer()
-  node_to_cmty = np.zeros(nodes.shape[0])
+  node_to_cmty = np.zeros(nodes.shape[0]).astype(int)
   cmty_sizes = np.zeros(len(CmtyV))
   for i in range(len(CmtyV)):
     for node in CmtyV[i]:
@@ -80,10 +80,8 @@ def main():
 
   # Add communities to nodes
   col_name = "cnm_cmty"
-
-  if col_name not in headers:
-    pd_nodes[col_name] = node_to_cmty
-    pd_nodes.to_csv("../data/cmty_nodes.csv", sep='\t')
+  pd_nodes[col_name] = node_to_cmty
+  pd_nodes.to_csv("../data/cmty_nodes.csv", sep='\t')
 
 
   assert(is_partition(G, cmtys))

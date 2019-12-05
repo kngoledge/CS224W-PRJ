@@ -53,8 +53,10 @@ def main():
   num_cmtys = len(set(partition.values()))
   num_edges = edges.shape[0]
   cmtys = [[] for _ in range(num_cmtys)]
-  for node in partition.keys():
-    cmtys[partition[node]].append(node)
+  node_to_cmty = np.zeros(len(partition)).astype(int)
+  for i in range(len(node_to_cmty)):
+    node_to_cmty[i] = partition[i]
+    cmtys[partition[i]].append(i)
 
   # Load social network accordingly
   if path.exists("../data/youtube.graph"):
@@ -65,10 +67,8 @@ def main():
 
   # Add communities to nodes
   col_name = "louvain_cmty"
-
-  if col_name not in headers:
-    pd_nodes[col_name] = partition
-    pd_nodes.to_csv("../data/cmty_nodes.csv", sep='\t')
+  pd_nodes[col_name] = node_to_cmty
+  pd_nodes.to_csv("../data/cmty_nodes.csv", sep='\t')
 
   '''
   modularity = 0
