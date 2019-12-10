@@ -14,7 +14,7 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 def main():
 
   # Column name
-  col_name = "kmeans_cmty"
+  col_name = "kmeans_features_cmty"
 
   # Load data
   if path.exists("../data/cmty_nodes.csv"):
@@ -32,7 +32,7 @@ def main():
 
   # Aggregate file names
   model_names = ["GAT","GCN","GraphSage"]
-  npy_names = ["../data/"+x+"_node_embeddings.npy" for x in model_names]
+  npy_names = ["../data/"+x+"_node_embeddings_with_features.npy" for x in model_names]
 
   model_cmtys = []
   model_time = []
