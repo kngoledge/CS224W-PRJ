@@ -7,7 +7,7 @@ from networkx.algorithms.community.quality import modularity
 from networkx.algorithms.community.community_utils import is_partition
 import sklearn.cluster as cluster
 
-epsilon_value = 0.6
+epsilon_value = 0.5
 
 def plot_clusters(data, algorithm, args, kwds):
   return algorithm(*args, **kwds).fit_predict(data)
@@ -64,6 +64,7 @@ def main():
     ##########################################
     stop = timeit.default_timer()
     model_time.append(stop - start)
+    print("Runtime:",stop-start)
 
     # Convert node_mapping to cmtys and node_to_cmty array
     #num_cmtys = len(set(node_mapping.values()))
