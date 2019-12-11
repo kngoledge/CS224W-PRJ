@@ -48,8 +48,8 @@ def main():
     # CODE HERE to cluster embeddings and creating node_mapping #
     # node_mapping can either be dictionary or array #
     ##########################################
-    print("KMeans:")
-    plot_clusters(embeddings, cluster.KMeans, (), {'n_clusters':6})
+    print("DBScan:")
+    plot_clusters(embeddings, cluster.DBSCAN, (), {'eps':0.025})
 
     ##########################################
 
