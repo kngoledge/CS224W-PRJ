@@ -7,7 +7,7 @@ from networkx.algorithms.community.quality import modularity
 from networkx.algorithms.community.community_utils import is_partition
 import sklearn.cluster as cluster
 
-epsilon_value = 1.1
+epsilon_value = 0.6
 
 def plot_clusters(data, algorithm, args, kwds):
   return algorithm(*args, **kwds).fit_predict(data)
