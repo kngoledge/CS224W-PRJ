@@ -26,7 +26,7 @@ def main():
 
   # Aggregate file names
   model_names = ["GAT","GCN","GraphSage"]
-  npy_names = ["../data/"+x+"_node_embeddings_with_features.npy" for x in model_names]
+  npy_names = ["../data/"+x+"_node_embeddings.npy" for x in model_names]
 
   versions = []
 
@@ -62,7 +62,7 @@ def main():
     plt.xlabel('Number of clusters *k*')
     plt.ylabel('Sum of squared distance')
     plt.legend()
-    plt.savefig("../figures/find_k_with_features"+str(i)+".png")
+    plt.savefig("../figures/find_k"+str(i)+".png")
 
     ##########################################
 

@@ -14,7 +14,7 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 def main():
 
   # Column name
-  col_name = "kmeans_features_cmty"
+  col_name = "test_cmty"
 
   # Load data
   if path.exists("../data/cmty_nodes.csv"):
@@ -53,7 +53,7 @@ def main():
     X_std = StandardScaler().fit_transform(embeddings)
 
     # Run local implementation of kmeans
-    km = KMeans(n_clusters=17, max_iter=10000)
+    km = KMeans(n_clusters=6, max_iter=10000)
     km.fit(X_std)
 
     node_mapping = km.labels_
